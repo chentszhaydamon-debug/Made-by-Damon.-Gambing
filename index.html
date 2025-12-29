@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 Damon抽獎系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            color: white;
+            overflow-x: hidden;
+        }
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            animation: scan 3s linear infinite;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .title {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+        .numbers {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .number {
+            width: 100px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #00ff88;
+            border: 3px solid #00ff88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+        }
+        .button {
+            padding: 15px 35px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 15px;
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.4);
+        }
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            height: 50px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .result-text {
+            font-size: 2rem;
+            font-weight: 900;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .prize-list {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 500px;
+        }
+        .prize-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid;
+        }
+        @media (max-width: 768px) {
+            .title { font-size: 2.2rem; }
+            .number { width: 70px; height: 110px; font-size: 3rem; }
+            .button { padding: 12px 25px; font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="scan-line"></div>
+    
+    <div class="container">
+        <h1 class="title">🎰 Damon幸運抽獎</h1>
+        
+        <div class="numbers">
+            <div class="number" id="digit1">0</div>
+            <div class="number" id="digit2">0</div>
+            <div class="number" id="digit3">0</div>
+        </div>
+        
+        <div class="result">
+            <div class="result-text" id="resultText"></div>
+        </div>
+        
+        <div>
+            <button class="button" id="drawButton">
+                <i class="fas fa-play"></i> 開始抽獎
+            </button>
+            <button class="button" id="resetButton">
+                <i class="fas fa-redo"></i> 重新開始
+            </button>
+        </div>
+        
+        <div class="prize-list">
+            <h2 style="text-align: center; margin-bottom: 15px; color: #00ff88; font-size: 1.5rem;">
+                <i class="fas fa-gift"></i> 獎品等級
+            </h2>
+            
+            <div class="prize-item" style="border-left-color: #ff00ff;">
+                <div>
+                    <div style="font-weight: bold; font-size: 1.1rem;">🎯 777 - 神話大獎</div>
+                    <div style="font-size: 0.85rem; opacity: 0.8;">機會: 1/10,000</div>
+                </div>
+                <div style="color: #ff00ff; font-size: 1.3rem;"><i class="fas fa-dragon"></i></div>
+            </div>
+            
+            <div class="prize-item" style="border-left-color: #ffd700;">
+                <div>
+                    <div style="font-weight: bold; font-size: 1.1rem;">🏆 666 - 傳奇大獎</div>
+                    <div style="font-size: 0.85rem; opacity: 0.8;">機會: 1/1,000</div>
+                </div>
+                <div style="color: #ffd700; font-size: 1.3rem;"><i class="fas fa-crown"></i></div>
+            </div>
+            
+            <div class="prize-item" style="border-left-color: #aa00ff;">
+                <div>
+                    <div style="font-weight: bold; font-size: 1.1rem;">⭐ 555 - 史詩獎品</div>
+                    <div style="font-size: 0.85rem; opacity: 0.8;">機會: 1/500</div>
+                </div>
+                <div style="color: #aa00ff; font-size: 1.3rem;"><i class="fas fa-star"></i></div>
+            </div>
+            
+            <div class="prize-item" style="border-left-color: #00aaff;">
+                <div>
+                    <div style="font-weight: bold; font-size: 1.1rem;">💎 333 - 稀有獎品</div>
+                    <div style="font-size: 0.85rem; opacity: 0.8;">機會: 1/200</div>
+                </div>
+                <div style="color: #00aaff; font-size: 1.3rem;"><i class="fas fa-gem"></i></div>
+            </div>
+            
+            <div class="prize-item" style="border-left-color: #00cc00;">
+                <div>
+                    <div style="font-weight: bold; font-size: 1.1rem;">🎁 其他 - 參加獎</div>
+                    <div style="font-size: 0.85rem; opacity: 0.8;">機會: 極高</div>
+                </div>
+                <div style="color: #00cc00; font-size: 1.3rem;"><i class="fas fa-gift"></i></div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 10px; color: #888; font-size: 0.9rem;">
+            <p>Created by Damon • 抽獎系統 v1.0</p>
+        </div>
+    </div>
+
+    <script>
+        let isDrawing = false;
+        const drawButton = document.getElementById('drawButton');
+        const resetButton = document.getElementById('resetButton');
+        const resultText = document.getElementById('resultText');
+        
+        drawButton.addEventListener('click', startDraw);
+        resetButton.addEventListener('click', resetGame);
+        
+        function startDraw() {
+            if (isDrawing) return;
+            isDrawing = true;
+            
+            drawButton.disabled = true;
+            resetButton.disabled = true;
+            drawButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 抽獎中...';
+            resultText.style.opacity = '0';
+            
+            let count = 0;
+            const interval = setInterval(() => {
+                document.getElementById('digit1').textContent = Math.floor(Math.random() * 10);
+                document.getElementById('digit2').textContent = Math.floor(Math.random() * 10);
+                document.getElementById('digit3').textContent = Math.floor(Math.random() * 10);
+                
+                count++;
+                if (count > 25) {
+                    clearInterval(interval);
+                    setTimeout(showResult, 300);
+                }
+            }, 80);
+        }
+        
+        function showResult() {
+            let finalNumber;
+            const roll = Math.random() * 10000;
+            
+            if (roll < 1) {
+                finalNumber = 777;
+            } else if (roll < 11) {
+                finalNumber = 666;
+            } else if (roll < 31) {
+                finalNumber = 555;
+            } else if (roll < 81) {
+                finalNumber = 333;
+            } else {
+                do {
+                    finalNumber = Math.floor(Math.random() * 1000);
+                } while ([777, 666, 555, 333].includes(finalNumber));
+            }
+            
+            const numStr = finalNumber.toString().padStart(3, '0');
+            
+            setTimeout(() => {
+                document.getElementById('digit1').textContent = numStr[0];
+            }, 200);
+            
+            setTimeout(() => {
+                document.getElementById('digit2').textContent = numStr[1];
+            }, 400);
+            
+            setTimeout(() => {
+                document.getElementById('digit3').textContent = numStr[2];
+                
+                let message = '';
+                let color = '';
+                
+                if (finalNumber === 777) {
+                    message = '🎉 神話大獎！';
+                    color = '#ff00ff';
+                } else if (finalNumber === 666) {
+                    message = '🏆 傳奇大獎！';
+                    color = '#ffd700';
+                } else if (finalNumber === 555) {
+                    message = '⭐ 史詩獎品！';
+                    color = '#aa00ff';
+                } else if (finalNumber === 333) {
+                    message = '💎 稀有獎品！';
+                    color = '#00aaff';
+                } else {
+                    message = '🎁 參加獎！';
+                    color = '#00cc00';
+                }
+                
+                resultText.textContent = message;
+                resultText.style.color = color;
+                resultText.style.opacity = '1';
+                
+                drawButton.disabled = false;
+                resetButton.disabled = false;
+                drawButton.innerHTML = '<i class="fas fa-play"></i> 開始抽獎';
+                isDrawing = false;
+                
+            }, 600);
+        }
+        
+        function resetGame() {
+            document.getElementById('digit1').textContent = '0';
+            document.getElementById('digit2').textContent = '0';
+            document.getElementById('digit3').textContent = '0';
+            
+            resultText.style.opacity = '0';
+            
+            drawButton.disabled = false;
+            resetButton.disabled = false;
+            drawButton.innerHTML = '<i class="fas fa-play"></i> 開始抽獎';
+            isDrawing = false;
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' && !isDrawing) {
+                e.preventDefault();
+                startDraw();
+            }
+            if (e.code === 'KeyR' && e.ctrlKey) {
+                e.preventDefault();
+                resetGame();
+            }
+        });
+        
+        console.log('Damon抽獎系統已加載！');
+    </script>
+</body>
+</html>
